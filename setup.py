@@ -15,6 +15,7 @@ setup(
     license='MIT License',  
     description='A django app to emit and listen Redsys/sermepa POS payments',
     long_description=README,
+    install_requires=["pyDes==2.0.1", ],
     url='https://github.com/bcurtu/django-sermepa',
     author='Bosco Curtu',
     author_email='bcurtu@gmail.com',

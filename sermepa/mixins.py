@@ -13,6 +13,7 @@ class SermepaMixin(object):
 
     @staticmethod
     def encode_base64(data):
+        import ipdb; ipdb.set_trace()
         return base64.b64encode(data)
 
     @staticmethod

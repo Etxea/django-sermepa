@@ -1,2 +1,28 @@
 *.pyc
 *.db
+
+# Local settings
+app.ini
+
+# Geany editor
+*.geany
+
+# NinjaIDE
+.*.nja
+
+# Eclipse
+.project
+.pydevproject
+.settings
+
+# Netbeans
+nbproject/
+
+# PyCharm
+.idea
+
+# py.test
+.cache
+.testmondata
+.tmontmp
+.hypothesis

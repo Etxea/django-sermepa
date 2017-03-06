@@ -14,14 +14,16 @@ OPER_DEFERRED_AUTORIZATION = 'O'
 OPER_DEFERRED_CONFIRMATION = 'P'
 OPER_DEFERRED_CANCEL = 'Q'
 
+
 class SermepaIDPTVManager(models.Manager):
     def new_idtpv(self):
         new_idtpv = '%d' % (int(self.all().aggregate(Max('idtpv')).get('idtpv__max') or '1000000000'[:10])+1)
         self.create(idtpv=new_idtpv)
         return new_idtpv
 
+
 class SermepaIdTPV(models.Model):
-    idtpv = models.CharField(max_length=12)
+    idtpv = models.CharField(max_length=12, unique=True)
     objects = SermepaIDPTVManager()
 
     def __unicode__(self):
