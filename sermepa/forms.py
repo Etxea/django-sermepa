@@ -17,14 +17,13 @@ class SermepaPaymentForm(SermepaMixin, forms.Form):
 
     def __init__(self, *args, **kwargs):
         merchant_parameters = kwargs.pop('merchant_parameters', None)
+        secret_key = kwargs.pop('secret_key', settings.SERMEPA_SECRET_KEY)  # implementation for django_payments
         super(SermepaPaymentForm, self).__init__(*args, **kwargs)
         if merchant_parameters:
             json_data = json.dumps(merchant_parameters)
             order = merchant_parameters['DS_MERCHANT_ORDER']
-            b64_params = self.encode_base64(json_data)
-            signature = self.get_firma_peticion(order, b64_params,
-                                                settings.SERMEPA_SECRET_KEY)
-
+            b64_params = self.encode_base64(json_data.encode())
+            signature = self.get_firma_peticion(order, b64_params, secret_key)
             self.initial['Ds_SignatureVersion'] = settings.SERMEPA_SIGNATURE_VERSION
             self.initial['Ds_MerchantParameters'] = b64_params
             self.initial['Ds_Signature'] = signature
@@ -42,10 +41,10 @@ class SermepaPaymentForm(SermepaMixin, forms.Form):
         </form>""" % (settings.SERMEPA_URL_TEST, self.as_p()))
 
 
-class SermepaResponseForm(forms.ModelForm):
+class SermepaResponseForm(forms.Form):
+    Ds_SignatureVersion = forms.CharField(max_length=256)
+    Ds_Signature = forms.CharField(max_length=256)
+    Ds_MerchantParameters = forms.CharField(max_length=2048)
+
     Ds_Date = forms.DateField(required=False, input_formats=('%d/%m/%Y',))
     Ds_Hour = forms.TimeField(required=False, input_formats=('%H:%M',))
-
-    class Meta:
-        model = SermepaResponse
-        exclude = ()
