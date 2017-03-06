@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+import re
 import hashlib
 import logging
 import base64
@@ -43,7 +44,7 @@ class SermepaMixin(object):
         return encrypted
 
     def hmac256(self, data, key):
-        firma_hmac =  hmac.new(key, data, hashlib.sha256).digest()
+        firma_hmac = hmac.new(key, data, hashlib.sha256).digest()
         return self.encode_base64(firma_hmac)
 
     def get_firma_peticion(self, merchant_order, merchant_parameters, clave_sha256):
@@ -52,15 +53,14 @@ class SermepaMixin(object):
         return self.hmac256(merchant_parameters, key_3des)
 
     def get_firma_respuesta(self, ds_order, ds_merchant_parameters, ds_signature):
-        import re
         key = self.decode_base64(settings.SERMEPA_SECRET_KEY)
         order_encrypted = self.encrypt_3des(ds_order, key)
         firma = self.hmac256(ds_merchant_parameters.encode(), order_encrypted)
 
         alphanumeric_characters = re.compile('[^a-zA-Z0-9]')
-        Ds_Signature_safe = re.sub(alphanumeric_characters, '', ds_signature)
-        Ds_Signature_calculated_safe = re.sub(alphanumeric_characters, '', firma.decode())
-        if Ds_Signature_safe == Ds_Signature_calculated_safe:
+        ds_dignature_safe = re.sub(alphanumeric_characters, '', ds_signature)
+        ds_dignature_calculated_safe = re.sub(alphanumeric_characters, '', firma.decode())
+        if ds_dignature_safe == ds_dignature_calculated_safe:
             return True
         else:
             return False
