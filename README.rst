@@ -8,16 +8,21 @@ Permite generar cobros puntuales, recurrentes por fichero o por referencia, y de
 
 La app tiene una vista que escucha las notificaciones del TPV (se debe pedir su activación a tu banco) y lanza signals para que sean procesadas por tu aplicación de cobros, para cambiar de estado el pedido, enviar emails de notificación...
 
-Nuevo en la versión 1.1.2: **¡Compatible con python 2.7 y python 3.x!**
-Nuevo en la versión 1.1.3: Support django 1.4 + (tested in 1.4, 1.5, 1.6, 1.7)
+**Este fork implementa la versión 2.1 de Sermepa (SHA-256).**
 
-Para utilizarlo sigue los siguientes pasos
+Nuevo en la versión 1.1.2: Compatible con python 2.7 y python 3.x.
+
+Nuevo en la versión 1.1.3: Soporte django 1.4+ (probado en 1.4, 1.5, 1.6, 1.7).
+
+Nuevo en la versión 1.1.4: Corrección de errores de empaquetado, migraciones y readme. Probado solo en Django 1.11 y Python 3.6.
+
+Para utilizarlo sigue los siguientes pasos:
 
 1. Instala el proyecto usando pip o bájate las fuentes de github:
- 
+
  1.1 Intalación con pip::
 
-  pip install django-sermepa
+  pip install git+https://github.com/APSL/django-sermepa
 
  1.2 Usando las fuentes, bájate el proyecto y copia la carpeta sermepa en tu entorno o proyecto.
 
@@ -28,7 +33,9 @@ Para utilizarlo sigue los siguientes pasos
     INSTALLED_APPS += ('sermepa',)
  ..
 
-3. Ojo, hay nuevos modelos: syncdb o migrations (no incluídas, depende de tu versiòn de django)
+3. Aplicar migraciones::
+
+    python manage.py migrate
 
 4. Añade los siguientes settings::
 
@@ -37,7 +44,6 @@ Para utilizarlo sigue los siguientes pasos
     SERMEPA_MERCHANT_CODE = '327234688' #comercio de test
     SERMEPA_TERMINAL = '002'
     SERMEPA_SECRET_KEY = 'qwertyasdf0123456789'
-    SERMEPA_BUTTON_IMG = '/site_media/_img/targets.jpg'
     SERMEPA_CURRENCY = '978' #Euros
 
  Deberás modificar SERMEPA_MERCHANT_CODE, SERMEPA_SECRET_KEY, SERMEPA_BUTTON_IMG, SERMEPA_TERMINAL
@@ -48,9 +54,9 @@ Para utilizarlo sigue los siguientes pasos
 
      (r'^sermepa/', include('sermepa.urls')),
  ..
-     
+
 6. Programa los listeners de las signals de OK, KO y si quieres de error:
- 
+
  6.1 El listener recibe un objecto de tipo `SermepaResponse <https://github.com/bcurtu/django-sermepa/blob/master/sermepa/models.py>`_
  con toda la información de la operación del TPV. Puedes usar un listener que procese todas los casos, o uno por cada caso (OK y KO)
 
@@ -69,7 +75,7 @@ Para utilizarlo sigue los siguientes pasos
     def payment_ko(sender, **kwargs):
         '''sender es un objecto de clase SermepaResponse. Utiliza el campo Ds_MerchantData
         para asociarlo a tu Pedido o Carrito''
-        pass        
+        pass
 
     def sermepa_ipn_error(sender, **kwargs):
         '''Esta señal salta cuando el POST data recibido está mal firmado. Solo pasa en caso de intentos de cracking.
@@ -91,21 +97,21 @@ Para utilizarlo sigue los siguientes pasos
     signature_error.connect(sermepa_ipn_error)
  ..
 
- 
-7. Utiliza el form de `SermepaPaymentForm <https://github.com/bcurtu/django-sermepa/blob/master/sermepa/forms.py>`_ para inicializar el botón de pago. 
+
+7. Utiliza el form de `SermepaPaymentForm <https://github.com/bcurtu/django-sermepa/blob/master/sermepa/forms.py>`_ para inicializar el botón de pago.
 
  El botón de pago será un formulario POST a la url del TPV, firmado con tu clave secreta, que deberá pasar toda la información de la operación: modalidad de pago, importe (en céntimos), URLs de notificación, OK y KO, descripción, datos del comercio, identificador de tu pedido, identificador de la operación...
- 
+
  Existen diferentes modalidades de pago:
 
  1. Las compras puntuales, el Ds_Merchant_TransactionType='0' y el Ds_Merchant_Order debe ser un string siempre único y de 10 caracteres.
 
  2. Las suscripciones o pagos recurrentes. Existen 2 tipos, por fichero o por referencia.
 
-  2.1 Por fichero, tienen un límite de 12 meses o 12 cobros. 
+  2.1 Por fichero, tienen un límite de 12 meses o 12 cobros.
 
-   2.1.1 El primer cobro el Ds_Merchant_TransactionType='L' y el Ds_Merchant_Order debe ser siempre único. 
-    
+   2.1.1 El primer cobro el Ds_Merchant_TransactionType='L' y el Ds_Merchant_Order debe ser siempre único.
+
     El tpv responde con el mismo valor pasado en la variable Ds_Order más 2 dígitos adicionales indicando el número de transacción (la primera es 00)
 
    2.1.2 Los cobros sucesivos se debe pasar el Ds_Merchant_TransactionType='M' y el primer Ds_Merchant_Order
@@ -140,9 +146,9 @@ Para utilizarlo sigue los siguientes pasos
             "Ds_Merchant_UrlKO": "http://%s%s" % (site.domain, reverse('end')),
             "Ds_Merchant_Order": SermepaIdTPV.objects.new_idtpv(),
             "Ds_Merchant_TransactionType": '0',
-        }        
+        }
         form = SermepaPaymentForm(initial=sermepa_dict)
-        
+
         return HttpResponse(render_to_response('form.html', {'form': form, 'debug': settings.DEBUG}))
 
 ..
@@ -173,7 +179,4 @@ Para utilizarlo sigue los siguientes pasos
 
 
 
- 
 9. Prueba el formulario de compra puntual en http://localhost:8000/ o http://localhost:8000/L/ ...
- 
- 
