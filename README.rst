@@ -16,13 +16,15 @@ Nuevo en la versión 1.1.3: Soporte django 1.4+ (probado en 1.4, 1.5, 1.6, 1.7).
 
 Nuevo en la versión 1.1.4: Corrección de errores de empaquetado, migraciones y readme. Probado solo en Django 1.11 y Python 3.6.
 
+Nuevo en la versión 1.1.5: Corrección de errores en form y mixin. Probado solo en Django 2.2 y Python 3.8.
+
 Para utilizarlo sigue los siguientes pasos:
 
 1. Instala el proyecto usando pip o bájate las fuentes de github:
 
  1.1 Intalación con pip::
 
-  pip install git+https://github.com/APSL/django-sermepa
+  pip install git+https://github.com/Etxea/django-sermepa
 
  1.2 Usando las fuentes, bájate el proyecto y copia la carpeta sermepa en tu entorno o proyecto.
 
