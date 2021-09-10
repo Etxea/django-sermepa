@@ -37,8 +37,8 @@ class SermepaMixin(object):
 
     @staticmethod
     def encrypt_3des(message, key):
-        print(message)
-        print(key)
+        #print(message)
+        #print(key)
         des3 = pyDes.triple_des(key, mode=pyDes.CBC, IV='\0' * 8, pad='\0', padmode=pyDes.PAD_NORMAL)
         encrypted = des3.encrypt(str(message))
         return encrypted
@@ -50,7 +50,7 @@ class SermepaMixin(object):
     def get_firma_peticion(self, merchant_order, merchant_parameters, clave_sha256):
         key = self.decode_base64(clave_sha256)
         key_3des = self.encrypt_3des(merchant_order, key)
-        return self.hmac256(merchant_parameters, key_3des)
+        return self.hmac256(merchant_parameters, key_3des).decode('ascii')
 
     def get_firma_respuesta(self, ds_order, ds_merchant_parameters, ds_signature):
         key = self.decode_base64(settings.SERMEPA_SECRET_KEY)
