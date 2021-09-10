@@ -21,11 +21,12 @@ class SermepaPaymentForm(SermepaMixin, forms.Form):
         super(SermepaPaymentForm, self).__init__(*args, **kwargs)
         if merchant_parameters:
             json_data = json.dumps(merchant_parameters)
-            order = merchant_parameters['DS_MERCHANT_ORDER']
+            print(json_data)
+            order = merchant_parameters['Ds_Merchant_Order']
             b64_params = self.encode_base64(json_data.encode())
             signature = self.get_firma_peticion(order, b64_params, secret_key)
             self.initial['Ds_SignatureVersion'] = settings.SERMEPA_SIGNATURE_VERSION
-            self.initial['Ds_MerchantParameters'] = b64_params
+            self.initial['Ds_MerchantParameters'] = b64_params.decode('ascii')
             self.initial['Ds_Signature'] = signature
 
     def render(self):
